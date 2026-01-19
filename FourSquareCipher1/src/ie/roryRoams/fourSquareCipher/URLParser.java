@@ -34,7 +34,7 @@ public class URLParser {
 		try {
 			br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-			String line;// just makes a string calle line
+			String line;// just makes a string called line
 			while ((line = br.readLine()) != null) {// gets a line from the buffere reader
 				sb.append(line).append("\n");// appends that line to string builder sb
 			}

@@ -7,6 +7,7 @@ public class FourSquareCipher {
 	private char[][] BLeft = new char[5][5], BRight = new char[5][5];
 
 	private boolean paddingAdded = false;
+	private boolean badKey = false;
 
 	// CONSTRUCTOR - runs when you create a new FourSquareCipher object
 	public FourSquareCipher(String key1, String key2) {
@@ -33,11 +34,13 @@ public class FourSquareCipher {
 			}
 		}
 
+		if(badKey) {
 		// Print the grids for testing remove later
-		// printSquare(TLeft, "Top Left (Standard)");
-		// printSquare(TRight, "Top Right (Key 1)");
-//        printSquare(BLeft, "Bottom Left (Key 2)");
-//        printSquare(BRight, "Bottom Right (Standard)");
+		printSquare(TLeft, "Top Left (Standard)");
+		printSquare(TRight, "Top Right (Key 1)");
+        printSquare(BLeft, "Bottom Left (Key 2)");
+        printSquare(BRight, "Bottom Right (Standard)");
+	}
 	}
 
 	// cipherrunner calls these, and sends them text, then they in turn call and
@@ -61,6 +64,10 @@ public class FourSquareCipher {
 		// Make the key uppercase, remove any non-letters, and replace J with I
 		key = key.toUpperCase().replaceAll("[^A-Z]", "").replace('J', 'I');
 		StringBuilder result = new StringBuilder();// declares a string builder
+		if (key == null || key == "") {
+			key = "IDIOTS";//if this happens it means they entered a key with no letters in it.
+		badKey = true;
+		}
 		// add key letters (no duplicates)
 		// This loop goes through each letter in the key
 		for (int i = 0; i < key.length(); i++) {
@@ -209,18 +216,18 @@ public class FourSquareCipher {
 
 	// This method prints out a 5x5 grid to the console so you can see what's in it
 	// Parameters: square = the grid to print, name = what to call it when printing
-//   private void printSquare(char[][] square, String name) {
-	// System.out.println("\n" + name);// \n means pressing the enter button or new
-	// line System.out.println("-----------------");
-//        // Loop through each row 
-	// for (int i = 0; i < 5; i++) {
+   private void printSquare(char[][] square, String name) {
+ System.out.println("\n" + name);// \n means pressing the enter button or new
+ System.out.println("-----------------");
+// Loop through each row 
+	 for (int i = 0; i < 5; i++) {
 	// // Loop through each column
-//            for (int j = 0; j < 5; j++) {
-//                // Print each character followed by a space
-//                System.out.print(square[i][j] + " ");
-//            }
-//            System.out.println(); 
-//        }
-//    } 
+           for (int j = 0; j < 5; j++) {
+              //  Print each character followed by a space
+               System.out.print(square[i][j] + " ");
+           }
+            System.out.println(); 
+       }
+    } 
 
 }

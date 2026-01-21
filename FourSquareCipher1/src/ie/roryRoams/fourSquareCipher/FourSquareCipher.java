@@ -1,5 +1,7 @@
 package ie.roryRoams.fourSquareCipher;
 
+import java.util.Scanner;
+
 public class FourSquareCipher {
 
 	// 4 small double arrays
@@ -8,9 +10,21 @@ public class FourSquareCipher {
 
 	private boolean paddingAdded = false;
 	private boolean badKey = false;
+	private ProgressBar pb = new ProgressBar();
+	private String forPrint;
+	private Scanner s = new Scanner(System.in);
 
 	// CONSTRUCTOR - runs when you create a new FourSquareCipher object
+	// you need to feed it 2 strings. these keys are crutial
+	// this builds two keys and also fills the private char arrays.
+	// it builds the keys using a method called keybuilder
+	// so it builds the two arrays with keys first, by doing 2 things
+	// i/5 equals the row and 1%5 = the column. ill just do 0 2 and 6
+	// i = 0 . 0 devidedby 5 = 0. 0 remainderdividedby 5 = 0. so row zero column 0
+	// i = 2 . 2 devidedby 5 = 0. 2 remainderdividedby 5 = 2. so row zero column 2
+	// i = 6 . 6 devidedby 5 = 1. 6 remainderdividedby 5 = 2. so row one column 1
 	public FourSquareCipher(String key1, String key2) {
+		badKey = false;// resets the badkey each time new keys are set!
 		// Build the keys
 		key1 = keyBuilder(key1);
 		key2 = keyBuilder(key2);
@@ -22,6 +36,7 @@ public class FourSquareCipher {
 		}
 
 		// Fill TLeft and BRight with standard alphabet
+		// just straight up counting, skipping j
 		int num = 'A';
 		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 5; j++) {
@@ -33,18 +48,18 @@ public class FourSquareCipher {
 				num++;
 			}
 		}
-
-		if(badKey) {
-		// Print the grids for testing remove later
-		printSquare(TLeft, "Top Left (Standard)");
-		printSquare(TRight, "Top Right (Key 1)");
-        printSquare(BLeft, "Bottom Left (Key 2)");
-        printSquare(BRight, "Bottom Right (Standard)");
+//my little joke if the user messes up the keys
+		if (badKey) {
+			// Print the grids for testing remove later
+			printSquare(TLeft, "Top Left (Standard)");
+			printSquare(TRight, "Top Right (Key 1)");
+			printSquare(BLeft, "Bottom Left (Key 2)");
+			printSquare(BRight, "Bottom Right (Standard)");
+		}
 	}
-	}
 
-	// cipherrunner calls these, and sends them text, then they in turn call and
-	// return process
+	// ciphermenu calls these, and sends them text, then they in turn call and
+	// return the process method
 	public String encrypt(String text) {
 		return process(text, true);
 	}
@@ -54,27 +69,31 @@ public class FourSquareCipher {
 
 	}
 
-	// PRIVATE METHODS - internal logic only
-
+// this is called by the class constructor, and fed one key at a time.
 	// This method takes a key word and creates a 25-letter string from it
 	// First it puts the key letters (no repeats), then fills in the rest of the
 	// alphabet
 	// Returns a String that's exactly 25 letters long, A to Z minus J
+	// if key = null this happens it means they entered a key with no letters in it.
+	// add key letters but with no duplicates
+	// This loop goes through each letter in the key
+	// this is just searching the string builder for 'c'. if there is one at index 1
+	// or 2 it would come back as one or two. -1 means there was not one there.
+	// then it adds c to the sting. unless its already in there then it does not.
+
 	private String keyBuilder(String key) {
 		// Make the key uppercase, remove any non-letters, and replace J with I
 		key = key.toUpperCase().replaceAll("[^A-Z]", "").replace('J', 'I');
 		StringBuilder result = new StringBuilder();// declares a string builder
 		if (key == null || key == "") {
-			key = "IDIOTS";//if this happens it means they entered a key with no letters in it.
-		badKey = true;
+			key = "YOURATHICK";
+			badKey = true;
 		}
-		// add key letters (no duplicates)
-		// This loop goes through each letter in the key
+
 		for (int i = 0; i < key.length(); i++) {
 			char c = key.charAt(i);
-			if (result.toString().indexOf(c) == -1) {// this is just searching the string for 'c'. if there was 1 in
-														// there it would come back as 1 and therefore not enter it
-														// again
+			if (result.indexOf(String.valueOf(c)) == -1) {
+
 				result.append(c); // then it adds c to the sting. unless its already in there then it does not.
 			}
 		}
@@ -98,7 +117,6 @@ public class FourSquareCipher {
 		// Clean letters for processing
 		String cleanST = text.toUpperCase().replace('J', 'I').replaceAll("[^A-Z]", "");
 		StringBuilder clean = new StringBuilder(cleanST);
-
 		if (encryptMode) {
 			paddingAdded = false;
 		} // this resets the padding added. its a little messy this removing the x but i
@@ -109,7 +127,18 @@ public class FourSquareCipher {
 			clean.append("X");
 			paddingAdded = true; // this means that the cipher runner will remove the extra x if all works well.
 		}
-
+		if (encryptMode) {
+			forPrint = "Encrytping";
+		} else {
+			forPrint = "Decrytping";
+		}
+		// we use this int herte and further down, here just to print out
+		// and further down to feed to the progress printer
+		int totalPairs = clean.length() / 2;
+		System.out.println(ConsoleColour.YELLOW_BOLD_BRIGHT);
+		System.out.println("\nProcessing " + totalPairs + " pairs of letters for " + forPrint);
+		System.out.println("please press enter to start!");
+		s.nextLine();
 		// System.out.println("\nProcessing text: " + clean + " (" + clean.length() + "
 		// letters)");
 
@@ -117,9 +146,27 @@ public class FourSquareCipher {
 		StringBuilder midText = new StringBuilder();
 
 		// Process the text in pairs of letters
+		// added a print progress bar using the new ints we made
 		for (int i = 0; i < clean.length(); i += 2) {
+			int currentPair = (i / 2) + 1;
+			pb.printProgress(currentPair, totalPairs);
+
 			// Take two letters at a time and transform them using the transform method
+			// the transform method needs two chars and a boolean
+			// this is what encrypts and decrypts using the thransform method
 			midText.append(transform(clean.charAt(i), clean.charAt(i + 1), encryptMode));
+			if (totalPairs <= 50) {
+				try {
+					Thread.sleep(5);
+				} catch (InterruptedException e) {
+					// Ignore interruption
+				}
+			}
+
+		}
+		// this resets the colour mode back to the colour set by cipher menu
+		if (!encryptMode) {
+			System.out.println(ConsoleColour.CYAN_BRIGHT);
 		}
 
 		// If we are decrypting AND the switch is ON
@@ -127,22 +174,23 @@ public class FourSquareCipher {
 			if (midText.length() > 0) {
 				midText.setLength(midText.length() - 1); // Remove the padding
 			}
-			this.paddingAdded = false; // FLIP THE SWITCH OFF IMMEDIATELY
+			this.paddingAdded = false; // FLIP THE SWITCH OFF IMMEDIATELY BECAUSE WHEN YOU DONT IT CAUSES CHAOS!!!!!!!
 		}
 
 		// Merge with original punctuation/spaces
 		// This part puts the spaces and punctuation back where they were in the
-		// original text
+		// original text. it checks for
 		StringBuilder finalText = new StringBuilder();
-		int letterIndex = 0; // Keeps track of the midtext
+		int letterIndex = 0; // Keeps track of the midtext location
 
 		// Go through the original text character by character
 		for (int i = 0; i < text.length(); i++) {
 			char c = text.charAt(i); // grabs every char in the original text
 			// If it's a letter in the original, replace it with a transformed letter
 			if (Character.isLetter(c)) { // if character c is a letter
-				if (letterIndex < midText.length()) {
-					finalText.append(midText.charAt(letterIndex++));
+				if (letterIndex < midText.length()) {// if letter index is less than midtext length
+					finalText.append(midText.charAt(letterIndex));// then append the letter at letterIndex
+					letterIndex++;
 				}
 			} else {
 				// If it's not a letter just add it to the end.
@@ -150,9 +198,13 @@ public class FourSquareCipher {
 			}
 		}
 
-		// Append the last letter if there is one
+		// this bit of code adds the extra letter back in if padding was used
+		// as that is the only time letterindex would be less than mid text
+		// and char at letter index is one more than letterindex as
+		// letter index starts at zero but the length.
 		while (letterIndex < midText.length()) {
-			finalText.append(midText.charAt(letterIndex++));
+			finalText.append(midText.charAt(letterIndex));
+			letterIndex++;
 		}
 
 		return finalText.toString();
@@ -170,6 +222,7 @@ public class FourSquareCipher {
 			// Search through all 5 rows and 5 columns
 			for (int i = 0; i < 5; i++) {
 				for (int j = 0; j < 5; j++) {
+
 					// Find where 'a' is located in the TLeft grid
 					if (TLeft[i][j] == a) {
 						row1 = i;
@@ -183,15 +236,15 @@ public class FourSquareCipher {
 				}
 			}
 			// The encrypted pair is formed by:
-			// Taking the letter from TRight at (rowA, colB)
-			// Taking the letter from BLeft at (rowB, colA)
+			// Taking the letter from TRight at (row1, col2)
+			// Taking the letter from BLeft at (row2, col1)
 			return "" + TRight[row1][col2] + BLeft[row2][col1];// you need to add the "" otherwise the thing crashes, it
 																// forces it to be a string.
 			// when we return it we mix the rows and cols. confusing but once you keep the
 			// same pattern it works out
 		} else {
 			// Decrypt
-			// Same idea as encrypt, but we look in different grids
+			// Same idea as encrypt, but we start in the top right and bottom left
 			int row1 = 0, col1 = 0, row2 = 0, col2 = 0;
 			for (int i = 0; i < 5; i++) {
 				for (int j = 0; j < 5; j++) {
@@ -216,18 +269,18 @@ public class FourSquareCipher {
 
 	// This method prints out a 5x5 grid to the console so you can see what's in it
 	// Parameters: square = the grid to print, name = what to call it when printing
-   private void printSquare(char[][] square, String name) {
- System.out.println("\n" + name);// \n means pressing the enter button or new
- System.out.println("-----------------");
+	private void printSquare(char[][] square, String name) {
+		System.out.println("\n" + name);// \n means pressing the enter button or new
+		System.out.println("-----------------");
 // Loop through each row 
-	 for (int i = 0; i < 5; i++) {
-	// // Loop through each column
-           for (int j = 0; j < 5; j++) {
-              //  Print each character followed by a space
-               System.out.print(square[i][j] + " ");
-           }
-            System.out.println(); 
-       }
-    } 
+		for (int i = 0; i < 5; i++) {
+			// // Loop through each column
+			for (int j = 0; j < 5; j++) {
+				// Print each character followed by a space
+				System.out.print(square[i][j] + " ");
+			}
+			System.out.println();
+		}
+	}
 
 }

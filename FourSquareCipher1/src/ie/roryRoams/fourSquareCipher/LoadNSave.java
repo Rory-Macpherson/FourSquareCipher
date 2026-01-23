@@ -65,11 +65,12 @@ public class LoadNSave {
 	// then close the output stream. important
 	// then an io exception from the exceptions class
 
-	public void save(StringBuilder all, String fileName) throws Exception {
+	public void save(StringBuilder all, String fileName, boolean append) throws Exception {
 		try {
-			FileOutputStream out = new FileOutputStream(new File(fileName));
+			FileOutputStream out = new FileOutputStream(new File(fileName), append);
 			String string = all.toString();
 			out.write(string.getBytes());
+			out.flush();
 			out.close();
 		} catch (IOException e) {
 			e.printStackTrace();

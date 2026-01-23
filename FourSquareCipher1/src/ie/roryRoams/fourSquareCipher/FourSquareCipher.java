@@ -128,9 +128,9 @@ public class FourSquareCipher {
 			paddingAdded = true; // this means that the cipher runner will remove the extra x if all works well.
 		}
 		if (encryptMode) {
-			forPrint = "Encrytping";
+			forPrint = "Encrypting";
 		} else {
-			forPrint = "Decrytping";
+			forPrint = "Decrypting";
 		}
 		// we use this int herte and further down, here just to print out
 		// and further down to feed to the progress printer
@@ -148,6 +148,7 @@ public class FourSquareCipher {
 		// Process the text in pairs of letters
 		// added a print progress bar using the new ints we made
 		for (int i = 0; i < clean.length(); i += 2) {
+			System.out.println(ConsoleColour.YELLOW_BOLD_BRIGHT);
 			int currentPair = (i / 2) + 1;
 			pb.printProgress(currentPair, totalPairs);
 

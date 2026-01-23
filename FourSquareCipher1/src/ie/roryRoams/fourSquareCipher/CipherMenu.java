@@ -282,7 +282,6 @@ public class CipherMenu {
 	}
 
 	private void textEncrypt() {
-		all = new StringBuilder();
 		String pt;
 		printHeader();
 		System.out.println("Please type in the text you want to encrypt and decrypt. ");
@@ -296,16 +295,7 @@ public class CipherMenu {
 		if(pt.isBlank() || pt == null) {
 			pt = "you did not enter any text yet the program stays on!!!";
 		}
-		String encrypted = cipher.encrypt(pt);
-		
-		all.append("\n--- ENCRYPTED ---\n");
-		all.append(encrypted);
-		decryptedText = cipher.decrypt(encrypted);
-		all.append("\n\n"); // Add two enters for spacing
-		all.append("\n--- DECRYPTED ---\n");
-		all.append(decryptedText);
-		save();
-
+		append(pt);
 	}
 
 	// method that is just a menu
@@ -338,7 +328,6 @@ public class CipherMenu {
 	// we have a catch it there is an issue. its normally a bad url tbh
 	private void urlEncrypt() {
 		try {
-			all = new StringBuilder();
 			String pt;
 			URLParser search = new URLParser();
 			
@@ -351,17 +340,12 @@ public class CipherMenu {
 			pt = s.nextLine();
 			
 			String midtext = search.fetchURL(pt);
-			String encrypted = cipher.encrypt(midtext);
-			all.append("\n--- ENCRYPTED ---\n");
-			all.append(encrypted);
-			decryptedText = cipher.decrypt(encrypted);
-			all.append("\n\n"); // Add two enters for spacing
-			all.append("\n--- DECRYPTED ---\n");
-			all.append(decryptedText);
-			save();
+			append(midtext);
 		} catch (Exception e) {
+			System.out.println(ConsoleColour.RED_BOLD);
 			System.out.println("");
 			System.out.println("Could not load URL");
+			System.out.println(ConsoleColour.CYAN_BRIGHT);
 			return; // go back to menu
 		}
 
@@ -376,11 +360,8 @@ public class CipherMenu {
 	// then we call the cipher and encypt and decrypt and then call the save
 	// function
 	private void fileEncrypt() {
-		all = new StringBuilder();
 		String pt;
 		String loadedText;
-		String encryptedText;
-		
 		printHeader();
 		System.out.println("Please enter a text file from the files in your project, ");
 		System.out.println("make sure it is the full text file name with the .txt ");
@@ -398,21 +379,17 @@ public class CipherMenu {
 
 		try {
 
-			loadedText = lNs.load(pt).trim();
-			encryptedText = cipher.encrypt(loadedText);
-			all.append("\n--- ENCRYPTED ---\n");
-			all.append(encryptedText);
-			all.append("\n\n"); // Add two enters for spacing
-			all.append("\n--- DECRYPTED ---\n");
-			decryptedText = cipher.decrypt(encryptedText);
-			all.append(decryptedText);
-			save();
+			loadedText = lNs.load(pt);
+			append(loadedText);
+			
 
 		} catch (Exception e) {
 			out.println("");
+			System.out.println(ConsoleColour.RED_BOLD);
 			out.println("[Error]: Could not find or read '" + pt + "'.");
 			out.println("Make sure the file is in the directory folder and the name is correct.");
 			out.println("make sure to include the extension example: .txt");
+			System.out.println(ConsoleColour.CYAN_BRIGHT);
 		}
 
 	}
@@ -427,6 +404,20 @@ public class CipherMenu {
 	// to overwrite
 	// the file or go back.
 	// https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java
+	
+private void append(String text) {
+	all = new StringBuilder();
+	String encrypted = cipher.encrypt(text);
+	all.append("\n--- ENCRYPTED ---\n");
+	all.append(encrypted);
+	decryptedText = cipher.decrypt(encrypted);
+	all.append("\n\n"); // Add two enters for spacing
+	all.append("\n--- DECRYPTED ---\n");
+	all.append(decryptedText);
+	all.append("\n\n");
+	save();
+
+	}
 
 	private void save() {
 		String pt;
@@ -440,7 +431,9 @@ public class CipherMenu {
 		pt = s.nextLine();
 
 		if (pt.trim().isEmpty() || decryptedText == null) {
+			System.out.println(ConsoleColour.RED_BOLD);
 			System.out.println("[Error] Save cancelled or no text to save.");
+			System.out.println(ConsoleColour.CYAN_BRIGHT);
 			return;
 		}
 		System.out.println();
@@ -490,6 +483,8 @@ public class CipherMenu {
 			e.printStackTrace();
 		}
 	}
+	
+	
 
 	// this is what sends the user back to the start menu if they start again from
 	// any
